@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  produtos:
+    build: ./produtos
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    volumes:
+      - ./produtos:/var/www/html
+
+  vendas:
+    build: ./vendas
+    ports:
+      - "8083:80"
+    depends_on:
+      - mysql
+    volumes:
+      - ./vendas:/var/www/html
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+    - "3306:3306"
+    volumes:
+    - mysql_data:/var/lib/mysql
+    - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+
+
+volumes:
+  mysql_data:
