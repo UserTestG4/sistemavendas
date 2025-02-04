@@ -1,4 +1,3 @@
-# venda-service/Dockerfile
 FROM maven:3.8.5-openjdk-17-slim AS build
 WORKDIR /app
 COPY pom.xml .

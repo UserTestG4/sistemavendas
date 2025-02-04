@@ -12,11 +12,12 @@ app.use(cors()); // Habilita CORS para todas as origens
 
 // Configuração do MySQL utilizando variáveis de ambiente
 const connection = mysql.createConnection({
-  host: process.env.MYSQL_HOST || 'mysql',           // O nome do serviço do MySQL no docker-compose
-  user: process.env.MYSQL_USER || 'root',              // Usuário do MySQL
-  password: process.env.MYSQL_PASSWORD || 'rootpassword', // Senha do MySQL
-  database: process.env.MYSQL_DATABASE || 'produto_db' // Banco de dados a ser utilizado
+  host: process.env.MYSQL_HOST || 'mysql',
+  user: process.env.MYSQL_USER || 'myuser',  // Agora está correto
+  password: process.env.MYSQL_PASSWORD || 'myuserpassword',
+  database: process.env.MYSQL_DATABASE || 'sistema_vendas'
 });
+
 
 // Tenta conectar ao MySQL
 connection.connect(err => {
@@ -51,7 +52,27 @@ app.get('/produtos', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+// Endpoint para buscar produto por ID
+app.get('/produtos/:id', (req, res) => {
+  const produtoId = req.params.id;
+  const sql = 'SELECT * FROM produtos WHERE id = ?';
+
+  connection.query(sql, [produtoId], (err, result) => {
+    if (err) {
+      console.error('Erro ao buscar produto:', err);
+      return res.status(500).json({ error: err });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Produto não encontrado' });
+    }
+
+    res.json(result[0]);
+  });
+});
+
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Produto Service rodando na porta ${PORT}`);
 });

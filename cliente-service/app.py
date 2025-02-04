@@ -8,11 +8,12 @@ CORS(app)  # Habilita o CORS para todas as rotas
 
 # Configuração do MySQL
 db_config = {
-    'host': os.environ.get('MYSQL_HOST', 'mysql_cliente'),
-    'user': os.environ.get('MYSQL_USER', 'root'),
-    'password': os.environ.get('MYSQL_PASSWORD', 'rootpassword'),
-    'database': os.environ.get('MYSQL_DATABASE_CLIENTE', 'cliente_db')
+    'host': os.environ.get('MYSQL_HOST', 'mysql'),  # Nome correto do serviço do MySQL no docker-compose
+    'user': os.environ.get('MYSQL_USER', 'myuser'),
+    'password': os.environ.get('MYSQL_PASSWORD', 'myuserpassword'),
+    'database': os.environ.get('MYSQL_DATABASE', 'sistema_vendas')  # Banco unificado
 }
+
 
 def get_db_connection():
     return mysql.connector.connect(**db_config)
@@ -44,6 +45,22 @@ def listar_clientes():
     conn.close()
     
     return jsonify(clientes)
+
+
+@app.route('/clientes/<int:id>', methods=['GET'])
+def buscar_cliente(id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM clientes WHERE id = %s", (id,))
+    cliente = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if cliente:
+        return jsonify(cliente)
+    else:
+        return jsonify({"erro": "Cliente não encontrado"}), 404
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

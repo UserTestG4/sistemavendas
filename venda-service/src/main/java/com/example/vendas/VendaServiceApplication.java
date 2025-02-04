@@ -1,4 +1,3 @@
-// venda-service/src/main/java/com/example/vendas/VendaServiceApplication.java
 package com.example.vendas;
 
 import org.springframework.boot.SpringApplication;

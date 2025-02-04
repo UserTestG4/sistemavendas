@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Vendas - Sistema de Vendas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container mt-4">
+    <h1>Lista de Vendas</h1>
+    <a href="index.html" class="btn btn-secondary mb-3">Home</a>
+    <a href="vendas.html" class="btn btn-secondary mb-3">Registrar Nova Venda</a>
+
+    <!-- Lista de vendas -->
+    <div>
+      <h3>Vendas Registradas</h3>
+      <ul class="list-group" id="listaVendas"></ul>
+    </div>
+  </div>
+
+  <script>
+    const URL_VENDAS = 'http://localhost:8080/vendas';
+
+    // Listar vendas ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch(URL_VENDAS)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Erro ao buscar vendas");
+          }
+          return response.json();
+        })
+        .then(data => {
+          const lista = document.getElementById('listaVendas');
+          lista.innerHTML = '';
+          data.forEach(venda => {
+            let totalVenda = 0;
+            let produtosHTML = "";
+
+            venda.produtos.forEach(produto => {
+              const totalProduto = produto.preco * produto.quantidade;
+              totalVenda += totalProduto;
+
+              produtosHTML += `
+                <li class="list-group-item">
+                  <strong>${produto.nome}</strong> - Quantidade: ${produto.quantidade}, Preço: R$ ${produto.preco.toFixed(2)}
+                  <br>Total: R$ ${totalProduto.toFixed(2)}
+                </li>`;
+            });
+
+            const dataVenda = venda.data_venda ? new Date(venda.data_venda).toLocaleDateString('pt-BR') : "Data não disponível";
+
+            const vendaHTML = `
+              <li class="list-group-item">
+                <strong>Venda ID:</strong> ${venda.id} - <strong>Cliente:</strong> ${venda.clienteNome}
+                <br><strong>Data:</strong> ${dataVenda}
+                <br><strong>Produtos:</strong>
+                <ul class="list-group">${produtosHTML}</ul>
+                <br><strong>Total da Venda:</strong> R$ ${totalVenda.toFixed(2)}
+              </li>`;
+
+            lista.innerHTML += vendaHTML;
+          });
+        })
+        .catch(error => console.error(error));
+    });
+
+  </script>
+</body>
+
+</html>
